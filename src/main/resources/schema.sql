@@ -75,7 +75,7 @@ CREATE TABLE notifications
     updated_at  timestamp with time zone,
     receiver_id uuid                     NOT NULL,
     sender_id   uuid                     NOT NULL,
-    channel_id  uuid                     NOT NULL,
+    channel_id  uuid,
     content     text                     NOT NULL
 );
 
