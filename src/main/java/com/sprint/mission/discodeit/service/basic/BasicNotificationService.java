@@ -5,6 +5,8 @@ import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.notification.NotificationForbidden;
+import com.sprint.mission.discodeit.exception.notification.NotificationNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.NotificationMapper;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
@@ -48,5 +50,30 @@ public class BasicNotificationService implements NotificationService {
         return notifications.stream()
                 .map(notificationMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public void deleteNotification(UUID notificationId, String accessTokenValue) {
+        // accessToken -> 유저 정보 추출 -> user 검증
+        // 인증되지 않은 요청 -> 401 ErrorResponse
+        // 인가되지 않은 요청 -> 403 ErrorResponse (요청자 본인의 알림만 삭제 가능)
+        // 둘 다 아니면 -> notificationId로 해당 알람 삭제
+        log.debug("# 알림 삭제 비즈니스 로직 시작, " +
+                "notificationId={}, accessTokenValue: {}", notificationId, accessTokenValue);
+
+        if (!jwtTokenProvider.validateAccessToken(accessTokenValue)) {
+            throw new DiscodeitException(ErrorCode.INVALID_TOKEN);
+        }
+
+        UUID userId = jwtTokenProvider.getUserId(accessTokenValue);
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> NotificationNotFoundException.withId(notificationId));
+        if (notification.getSender().getId().equals(userId)) {
+            throw NotificationForbidden.withId(notificationId);
+        }
+
+        notificationRepository.deleteById(notificationId);
+        log.info("# notificationRepository 에서 {} 삭제 성공", notificationId);
     }
 }
