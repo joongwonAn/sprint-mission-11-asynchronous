@@ -67,6 +67,17 @@ CREATE TABLE read_statuses
     UNIQUE (user_id, channel_id)
 );
 
+-- Notification
+CREATE TABLE notifications
+(
+    id          uuid PRIMARY KEY,
+    created_at  timestamp with time zone NOT NULL,
+    updated_at  timestamp with time zone,
+    receiver_id uuid                     NOT NULL,
+    sender_id   uuid                     NOT NULL,
+    channel_id  uuid                     NOT NULL,
+    content     text                     NOT NULL
+);
 
 -- 제약 조건
 -- User (1) -> BinaryContent (1)
@@ -107,6 +118,26 @@ ALTER TABLE read_statuses
 -- ReadStatus (N) -> User (1)
 ALTER TABLE read_statuses
     ADD CONSTRAINT fk_read_status_channel
+        FOREIGN KEY (channel_id)
+            REFERENCES channels (id)
+            ON DELETE CASCADE;
+
+-- Notification (N) -> User (1)
+ALTER TABLE notifications
+    ADD CONSTRAINT fk_notification_receiver
+        FOREIGN KEY (receiver_id)
+            REFERENCES users (id)
+            ON DELETE CASCADE;
+
+ALTER TABLE notifications
+    ADD CONSTRAINT fk_notification_sender
+        FOREIGN KEY (sender_id)
+            REFERENCES users (id)
+            ON DELETE SET NULL;
+
+-- Notification (N) -> Channel (1)
+ALTER TABLE notifications
+    ADD CONSTRAINT fk_notification_channel
         FOREIGN KEY (channel_id)
             REFERENCES channels (id)
             ON DELETE CASCADE;
