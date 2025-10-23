@@ -1,9 +1,6 @@
 package com.sprint.mission.discodeit.event;
 
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Notification;
-import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -55,8 +52,17 @@ public class NotificationRequiredEventListener {
         log.info(" # MessageCreatedEvent 수신 완료, 알림 저장 완료");
     }
 
-    @TransactionalEventListener
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void on(RoleUpdatedEvent event) {
+        // role이 바뀌면 알림 생성 -> DB에 알림 저장
+        log.debug("# RoleUpdatedEvent 리스너 시작");
 
+        UUID receiverId = event.userId();
+        User receiver = userRepository.findById(receiverId)
+                .orElseThrow(() -> UserNotFoundException.withId(receiverId));
+        User sender = userRepository.findByRole(Role.ADMIN);
+        Notification notification = new Notification(receiver, sender, null, "권한이 변경되었습니다.");
+        notificationRepository.save(notification);
+        log.info("# RoleUpdatedEvent 리스너 완료, 알람 저장");
     }
 }
