@@ -10,6 +10,6 @@ import org.mapstruct.Mapping;
 public interface NotificationMapper {
 
     @Mapping(target = "receiverId", source = "receiver.id")
-    @Mapping(target = "title", expression = "java(notification.getSender().getUsername() + \" (#\" + notification.getChannel().getName() + \")\")")
+    @Mapping(target = "title", expression = "java(notification.getChannel() != null && notification.getChannel().getName() != null ? notification.getSender().getUsername() + \" (#\" + notification.getChannel().getName() + \")\" : notification.getSender().getUsername())")
     NotificationDto toDto(Notification notification);
 }
