@@ -26,7 +26,7 @@ public class NotificationRequiredEventListener {
     private final ReadStatusRepository readStatusRepository;
     private final NotificationRepository notificationRepository;
 
-    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async("taskExecutor")
     public void on(MessageCreatedEvent event) {
         // 같은 채널의 참가자 중 sender 제외 각 사용자별 "알림 생성" -> DB에 notification 저장

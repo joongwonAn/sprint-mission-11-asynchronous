@@ -20,7 +20,7 @@ public class BinaryContentSaveListener {
     private final BinaryContentService binaryContentService;
 
     @Async("taskExecutor")
-    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleBinaryContentSaved(BinaryContentCreatedEvent event) {
         log.debug("# 바이너리 데이터 저장 시도");
         UUID id = binaryContentStorage.put(event.getBinaryContentId(), event.getBytes());
