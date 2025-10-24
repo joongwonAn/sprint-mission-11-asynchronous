@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -26,6 +27,7 @@ public class NotificationRequiredEventListener {
     private final NotificationRepository notificationRepository;
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @Async("taskExecutor")
     public void on(MessageCreatedEvent event) {
         // 같은 채널의 참가자 중 sender 제외 각 사용자별 "알림 생성" -> DB에 notification 저장
         log.debug("# MessageCreatedEvent 수신 시작");
