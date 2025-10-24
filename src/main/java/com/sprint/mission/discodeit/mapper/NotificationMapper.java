@@ -10,6 +10,19 @@ import org.mapstruct.Mapping;
 public interface NotificationMapper {
 
     @Mapping(target = "receiverId", source = "receiver.id")
-    @Mapping(target = "title", expression = "java(notification.getChannel() != null && notification.getChannel().getName() != null ? notification.getSender().getUsername() + \" (#\" + notification.getChannel().getName() + \")\" : notification.getSender().getUsername())")
+    @Mapping(
+            target = "title",
+            expression = """
+                        java(
+                            notification.getContent() != null && notification.getContent().contains("BinaryContentId")
+                            ? "S3 파일 업로드 실패"
+                            : (
+                                notification.getChannel() != null && notification.getChannel().getName() != null
+                                ? notification.getSender().getUsername() + " (#" + notification.getChannel().getName() + ")"
+                                : notification.getSender().getUsername()
+                            )
+                        )
+                    """
+    )
     NotificationDto toDto(Notification notification);
 }
