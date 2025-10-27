@@ -15,6 +15,8 @@ import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,7 @@ public class BasicNotificationService implements NotificationService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "notificationCache") // TODO: accessToken은 자주 바뀌니까 key로 두지 않는게 더 적절한가?
     public List<NotificationDto> getNotifications(String accessTokenValue) {
         // accessToken -> 유저 정보 추출 -> 해당 유저(receiver)의 알림 목록 조회 -> DTO 변환 후 반환
         log.debug("# 알림 조회 비즈니스 로직 시작, accessTokenValue: {}", accessTokenValue);
@@ -54,6 +57,7 @@ public class BasicNotificationService implements NotificationService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "notificationCache", allEntries = true)
     public void deleteNotification(UUID notificationId, String accessTokenValue) {
         // accessToken -> 유저 정보 추출 -> user 검증
         // 인증되지 않은 요청 -> 401 ErrorResponse
