@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.data.JwtDto;
 import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,11 +27,13 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
   private final ObjectMapper objectMapper;
   private final JwtTokenProvider tokenProvider;
   private final JwtRegistry jwtRegistry;
+  private final UserService userService;
 
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request,
       HttpServletResponse response,
       Authentication authentication) throws IOException, ServletException {
+    userService.evictUserCacheAll();
 
     response.setCharacterEncoding("UTF-8");
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);

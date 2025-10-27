@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.security.jwt;
 
+import com.sprint.mission.discodeit.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,6 +19,7 @@ public class JwtLogoutHandler implements LogoutHandler {
 
   private final JwtTokenProvider tokenProvider;
   private final JwtRegistry jwtRegistry;
+  private final UserService userService;
 
   @Override
   public void logout(HttpServletRequest request, HttpServletResponse response,
@@ -35,6 +37,9 @@ public class JwtLogoutHandler implements LogoutHandler {
           UUID userId = tokenProvider.getUserId(refreshToken);
           jwtRegistry.invalidateJwtInformationByUserId(userId);
         });
+
+      userService.evictUserCacheAll();
+
 
     log.debug("JWT logout handler executed - refresh token cookie cleared");
   }
