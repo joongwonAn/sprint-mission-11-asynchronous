@@ -1,3 +1,4 @@
+/*
 package com.sprint.mission.discodeit.event;
 
 import com.sprint.mission.discodeit.entity.*;
@@ -94,3 +95,4 @@ public class NotificationRequiredEventListener {
         log.info("# RoleUpdatedEvent 리스너 완료, 알람 저장");
     }
 }
+*/
