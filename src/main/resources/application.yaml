@@ -26,6 +26,20 @@ spring:
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  cache:
+    type: redis
+    redis:
+      enable-statistics: true
+    cache-names:
+      - channelCache
+      - channelCacheByUserId
+      - notificationCache
+      - userCache
+      - userCacheAll
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
 management:
   endpoints:
