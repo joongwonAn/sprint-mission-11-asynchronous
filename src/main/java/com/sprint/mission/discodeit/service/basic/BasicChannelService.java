@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,10 +44,10 @@ public class BasicChannelService implements ChannelService {
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "channelCache", allEntries = true),
-            @CacheEvict(value = "channelCacheByUserId", allEntries = true)
-    })
+    @Caching(
+            put = {@CachePut(value = "channelCache", key = "#result.id()")},
+            evict = {@CacheEvict(value = "channelCacheByUserId", allEntries = true)}
+    )
     public ChannelDto create(PublicChannelCreateRequest request) {
         log.debug("채널 생성 시작: {}", request);
         String name = request.name();
@@ -60,10 +61,10 @@ public class BasicChannelService implements ChannelService {
 
     @Transactional
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "channelCache", allEntries = true),
-            @CacheEvict(value = "channelCacheByUserId", allEntries = true)
-    })
+    @Caching(
+            put = {@CachePut(value = "channelCache", key = "#result.id()")},
+            evict = {@CacheEvict(value = "channelCacheByUserId", allEntries = true)}
+    )
     public ChannelDto create(PrivateChannelCreateRequest request) {
         log.debug("채널 생성 시작: {}", request);
         Channel channel = new Channel(ChannelType.PRIVATE, null, null);
@@ -105,10 +106,10 @@ public class BasicChannelService implements ChannelService {
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "channelCache", key = "#channelId"),
-            @CacheEvict(value = "channelCacheByUserId", allEntries = true)
-    })
+    @Caching(
+            put = {@CachePut(value = "channelCache", key = "#channelId", unless = "#result ==null")},
+            evict = {@CacheEvict(value = "channelCacheByUserId", allEntries = true)}
+    )
     public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
         log.debug("채널 수정 시작: id={}, request={}", channelId, request);
         String newName = request.newName();

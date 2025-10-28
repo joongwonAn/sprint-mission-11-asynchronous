@@ -44,7 +44,10 @@ public class BasicUserService implements UserService {
 
     @Transactional
     @Override
-    @CacheEvict(value = "userCacheAll", allEntries = true)
+    @Caching(
+            put = {@CachePut(value = "userCache", key = "#result.id()")},
+            evict = {@CacheEvict(value = "userCacheAll", allEntries = true)}
+    )
     public UserDto create(UserCreateRequest userCreateRequest,
                           Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
         log.debug("사용자 생성 시작: {}", userCreateRequest);
@@ -88,7 +91,7 @@ public class BasicUserService implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    @Cacheable(value = "userCache", key = "#userId")
+    @Cacheable(value = "userCache", key = "#userId", unless = "#result == null")
     public UserDto find(UUID userId) {
         log.debug("사용자 조회 시작: id={}", userId);
         UserDto userDto = userRepository.findById(userId)
@@ -114,7 +117,10 @@ public class BasicUserService implements UserService {
     @PreAuthorize("principal.userDto.id == #userId")
     @Transactional
     @Override
-    @CachePut(value = "userCache", key = "#userId")
+    @Caching(
+            put = {@CachePut(value = "userCache", key = "#userId")},
+            evict = {@CacheEvict(value = "userCacheAll", allEntries = true)}
+    )
     public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
                           Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
         log.debug("사용자 수정 시작: id={}, request={}", userId, userUpdateRequest);
